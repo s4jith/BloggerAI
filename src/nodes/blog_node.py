@@ -42,22 +42,28 @@ class BlogNode:
         Translate the content to the specified language.
         """
         translation_prompt="""
-        Translate the following content into {current_language}.
-        - Maintain the original tone, style, and formatting.
+        Translate the following blog post title and content into {current_language}.
+        - Maintain the original tone, style, and Markdown formatting.
         - Adapt cultural references and idioms to be appropriate for {current_language}.
+
+        ORIGINAL TITLE:
+        {blog_title}
 
         ORIGINAL CONTENT:
         {blog_content}
-
         """
-        print(state["current_language"])
-        blog_content=state["blog"]["content"]
+        print(f"Translating to: {state['current_language']}")
+        blog_title = state.get("blog", {}).get("title", "")
+        blog_content = state.get("blog", {}).get("content", "")
         messages=[
-            HumanMessage(translation_prompt.format(current_language=state["current_language"], blog_content=blog_content))
-
+            HumanMessage(translation_prompt.format(
+                current_language=state["current_language"], 
+                blog_title=blog_title, 
+                blog_content=blog_content
+            ))
         ]
         transaltion_content = self.llm.with_structured_output(Blog).invoke(messages)
-        return {"blog": {"content": transaltion_content}}
+        return {"blog": {"title": transaltion_content.title, "content": transaltion_content.content}}
 
     def route(self, state: BlogState):
         return {"current_language": state['current_language'] }

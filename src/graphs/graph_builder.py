@@ -25,6 +25,16 @@ class GraphBuilder:
 
         return self.graph
     
+    def translate_to_hindi(self, state: BlogState):
+        state = state.copy()
+        state["current_language"] = "hindi"
+        return self.blog_node_obj.translation(state)
+
+    def translate_to_french(self, state: BlogState):
+        state = state.copy()
+        state["current_language"] = "french"
+        return self.blog_node_obj.translation(state)
+
     def build_language_graph(self):
         """
         Build a graph for blog generation with inputs topic and language
@@ -34,8 +44,8 @@ class GraphBuilder:
         ## Nodes
         self.graph.add_node("title_creation", self.blog_node_obj.title_creation)
         self.graph.add_node("content_generation",self.blog_node_obj.content_generation)
-        self.graph.add_node("hindi_translation",lambda state: self.blog_node_obj.translation({**state, "current_language": "hindi"}))
-        self.graph.add_node("french_translation",lambda state: self.blog_node_obj.translation({**state, "current_language": "french"}))
+        self.graph.add_node("hindi_translation", self.translate_to_hindi)
+        self.graph.add_node("french_translation", self.translate_to_french)
         self.graph.add_node("route",self.blog_node_obj.route)
 
         ## edges and conditional edges
@@ -68,10 +78,9 @@ class GraphBuilder:
         return self.graph.compile()
     
 
-## Below code is for the langsmith langgraph studio
 llm=GroqLLM().get_llm()
 
-## get the graph
 graph_builder=GraphBuilder(llm)
+
 graph=graph_builder.build_language_graph().compile()
 

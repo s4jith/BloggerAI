@@ -7,11 +7,11 @@ class GroqLLM:
         load_dotenv()
 
 
-    def get_llm(self):
+    def get_llm(self, model="llama-3.3-70b-versatile"):
         try:
-            print(os.getenv("GROQ_API_KEY"))
+            print(f"Initializing Groq LLM with {model}...")
             os.environ["GROQ_API_KEY"]=self.groq_api_key=os.getenv("GROQ_API_KEY")
-            llm=ChatGroq(api_key=self.groq_api_key,model="llama-3.1-8b-instant")
+            llm=ChatGroq(api_key=self.groq_api_key,model=model)
             return llm
         except Exception as e:
-            raise ValueError("Error occurred with exception : {e}")
+            raise ValueError(f"Error occurred with exception : {e}")
